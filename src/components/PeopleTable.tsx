@@ -1,3 +1,4 @@
+// components/PeopleTable.tsx
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Person } from '../types/Person';
@@ -10,8 +11,18 @@ interface PeopleTableProps {
 export const PeopleTable: React.FC<PeopleTableProps> = ({ people }) => {
   const { slug: selectedSlug } = useParams<{ slug: string }>();
 
-  const findPerson = (name: string | null): Person | null =>
-    name ? (people.find(p => p.name === name) ?? null) : null;
+  const findPerson = (name: string | null): Person | undefined =>
+    name ? people.find(p => p.name === name) : undefined;
+
+  const renderParent = (name: string | null) => {
+    if (!name) {
+      return <span>-</span>;
+    }
+
+    const parent = findPerson(name);
+
+    return parent ? <PersonLink person={parent} /> : <span>{name}</span>;
+  };
 
   return (
     <table
@@ -43,18 +54,8 @@ export const PeopleTable: React.FC<PeopleTableProps> = ({ people }) => {
             <td>{person.sex}</td>
             <td>{person.born}</td>
             <td>{person.died}</td>
-            <td>
-              <PersonLink
-                person={findPerson(person.motherName)}
-                name={person.motherName}
-              />
-            </td>
-            <td>
-              <PersonLink
-                person={findPerson(person.fatherName)}
-                name={person.fatherName}
-              />
-            </td>
+            <td>{renderParent(person.motherName)}</td>
+            <td>{renderParent(person.fatherName)}</td>
           </tr>
         ))}
       </tbody>
